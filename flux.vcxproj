@@ -10,6 +10,15 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="core\memory_manager.cpp" />
+    <ClCompile Include="test\core_tests.cpp" />
+    <ClCompile Include="test\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\memory_manager.h" />
+    <ClInclude Include="test\core_tests.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{2C78BA45-513B-4E6C-BE3A-8EB130C6C423}</ProjectGuid>
