@@ -4,8 +4,7 @@
 
 namespace flux {
 
-MemoryManager::MemoryManager(size_t alloc_size) 
-    : ALLOC_SIZE_(alloc_size) {
+MemoryManager::MemoryManager(size_t alloc_size) : ALLOC_SIZE_(alloc_size) {
   // make sure alloc_size > 0
   if (alloc_size == 0)
     throw new std::logic_error("Failed to construct memory manager");
@@ -22,12 +21,9 @@ MemoryManager::~MemoryManager() {
   free(start_ptr_);
 }
 
-// TODO(wraftus) claiming is O(n) since we always check for gaps in memory
-// this may end up bottle necking processes that need to allocate alot
-// maybe change it to only looking for gaps if it has to
 flux_data_ptr MemoryManager::claimSection(size_t size, flux_id &id) {
   // return false is we cannot claim any more memory
-  if (claimed_ + size > ALLOC_SIZE_)
+  if (size == 0 || claimed_ + size > ALLOC_SIZE_)
     return nullptr;
 
   // see if we can insert this data in a gap
@@ -75,10 +71,9 @@ bool MemoryManager::freeSection(flux_id id) {
   return false;
 }
 
-flux_data_ptr MemoryManager::getSection(flux_id id, size_t &size) {
+flux_data_ptr MemoryManager::getSection(flux_id id) {
   for (auto i = segments_.begin(); i != segments_.end(); i++) {
     if (i->id == id) {
-      size = i->size;
       return addToPointer(start_ptr_, i->offset);
     }
   }

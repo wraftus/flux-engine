@@ -55,17 +55,16 @@ bool testMemoryManager() {
                  "Manager gave space when it should not have\n")
 
   // test getting data locations
-  size_t size;
-  TEST_CONDITION(*static_cast<float *>(manager.getSection(id1, size)) != a ||  size != sizeof(float),
+  TEST_CONDITION(*static_cast<float *>(manager.getSection(id1)) != a,
                  passed, "value stored with first id not correct\n")
-  TEST_CONDITION(*static_cast<float *>(manager.getSection(id2, size)) != b || size != sizeof(float),
+  TEST_CONDITION(*static_cast<float *>(manager.getSection(id2)) != b,
                  passed, "value stored with second id not correct\n")
-  TEST_CONDITION(*static_cast<float *>(manager.getSection(id3, size)) != c || size != sizeof(float),
+  TEST_CONDITION(*static_cast<float *>(manager.getSection(id3)) != c,
                  passed, "value stored with thrid id not correct\n")
 
   // test removing a section, and adding a new one
   TEST_CONDITION(!manager.freeSection(id3), passed, "failed to free a section\n")
-  TEST_CONDITION(manager.getSection(id3, size), passed, "returned a deleted section\n")
+  TEST_CONDITION(manager.getSection(id3), passed, "returned a deleted section\n")
   ptr = manager.claimSection(sizeof(float), id3);
   TEST_CONDITION(!ptr, passed, "Manager failed to give space\n")
   if (ptr)
@@ -73,16 +72,16 @@ bool testMemoryManager() {
   TEST_CONDITION(manager.claimSection(sizeof(float), id1), passed,
                  "Manager gave space when it should not have\n")
   TEST_CONDITION(!manager.freeSection(id2), passed, "failed to free a section\n")
-  TEST_CONDITION(manager.getSection(id2, size), passed, "returned a deleted section\n")
+  TEST_CONDITION(manager.getSection(id2), passed, "returned a deleted section\n")
   ptr = manager.claimSection(sizeof(float), id2);
   TEST_CONDITION(!ptr, passed, "Manager failed to give space\n")
   if (ptr)
     *static_cast<float *>(ptr) = b;
-  TEST_CONDITION(*static_cast<float *>(manager.getSection(id1, size)) != a ||  size != sizeof(float),
+  TEST_CONDITION(*static_cast<float *>(manager.getSection(id1)) != a,
                  passed, "value stored with first id not correct\n")
-  TEST_CONDITION(*static_cast<float *>(manager.getSection(id2, size)) != b || size != sizeof(float),
+  TEST_CONDITION(*static_cast<float *>(manager.getSection(id2)) != b,
                  passed, "value stored with second id not correct\n")
-  TEST_CONDITION(*static_cast<float *>(manager.getSection(id3, size)) != c || size != sizeof(float),
+  TEST_CONDITION(*static_cast<float *>(manager.getSection(id3)) != c,
                  passed, "value stored with thrid id not correct\n")
 
   // test defraging
@@ -91,7 +90,7 @@ bool testMemoryManager() {
   TEST_CONDITION(manager.claimSection(sizeof(float) * 2, id1), passed,
                  "manager allocated space when it was too fragmented to do so")
   manager.defrag();
-  TEST_CONDITION(*static_cast<float *>(manager.getSection(id2, size)) != b || size != sizeof(float),
+  TEST_CONDITION(*static_cast<float *>(manager.getSection(id2)) != b,
                  passed, "value stored with second id not correct\n")
   TEST_CONDITION(!manager.claimSection(sizeof(float) * 2, id1), passed,
                  "manager failed to allocate space when it should be able to do so")

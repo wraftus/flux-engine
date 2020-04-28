@@ -15,6 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="core\flux_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="core\memory_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -24,9 +27,15 @@
     <ClCompile Include="test\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lib\glad\src\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\memory_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\flux_core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test\core_tests.h">
