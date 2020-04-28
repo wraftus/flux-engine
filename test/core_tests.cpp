@@ -13,6 +13,19 @@ bool runCoreTests() {
   return passed;
 }
 
+bool runDataStructuresTests() {
+  bool passed = true;
+  printf("Running Data Structure Tests ... \n");
+
+#if TEST_VECTORS
+  passed &= testVectors();
+#endif TEST_VECTORS
+
+  if (passed)
+    printf("Passed all Data Structure Tests!\n");
+  return passed;
+}
+
 bool testMemoryManager() {
   printf("Testing MemoryManager ...\n");
   bool passed = true;
@@ -98,5 +111,79 @@ bool testMemoryManager() {
 
   if (passed)
     printf("MemoryManager passed all tests!\n");
+  return passed;
+}
+
+bool testVectors() {
+  bool passed = true;
+  printf("Testing Vectors ...\n");
+
+  auto v2_1 = flux::Vector2D(1.0, 1.0);
+  auto v2_2 = flux::Vector2D(1.0, 1.0);
+  auto v2_3 = -v2_1;
+
+  auto v3_1 = flux::Vector3D(1.0, 1.0, 1.0);
+  auto v3_2 = flux::Vector3D(1.0, 1.0, 1.0);
+  auto v3_3 = -v3_1;
+
+  TEST_CONDITION(!(v2_1 == v2_2), passed, "Vector2D operator== not working properly")
+  TEST_CONDITION(!(v3_1 == v3_2), passed, "Vector3D operator== not working properly")
+  TEST_CONDITION(v2_1 != v2_2, passed, "Vector2D operator!= not working properly")
+  TEST_CONDITION(v3_1 != v3_2, passed, "Vector3D operator!= not working properly")
+
+ TEST_CONDITION(v2_3 != flux::Vector2D(-1.0, -1.0), passed,
+   "Vector2D unary operator- not working properly")
+  TEST_CONDITION(v3_3 != flux::Vector3D(-1.0, -1.0, -1.0), passed, 
+    "Vector2D unary operator- not working properly")
+  TEST_CONDITION(v2_1 + v2_2 != flux::Vector2D(2.0, 2.0), passed,
+    "Vector2D binary operator+ not working properly")
+  TEST_CONDITION(v2_1 - v2_2 != flux::Vector2D(0.0, 0.0), passed,
+    "Vector2D binary operator- not working properly")
+  TEST_CONDITION(v3_1 + v3_2 != flux::Vector3D(2.0, 2.0, 2.0), passed,
+    "Vector3D binary operator+ not working properly")
+  TEST_CONDITION(v3_1 - v3_2 != flux::Vector3D(0.0, 0.0, 0.0), passed,
+    "Vector3D binary operator- not working properly")
+  TEST_CONDITION((2 * v2_1 != v2_1 + v2_1) || (v2_1 * 2 != v2_1 + v2_1), passed,
+    "Vector2D operator* not working properly")
+  TEST_CONDITION((2 * v3_1 != v3_1 + v3_1) || (v3_1 * 2 != v3_1 + v3_1), passed,
+    "Vector3D operator* not working properly")
+  TEST_CONDITION(v2_1 / 2 != flux::Vector2D(0.5, 0.5), passed,
+    "Vector2D operator/ not working properly")
+  TEST_CONDITION(v3_1 / 2 != flux::Vector3D(0.5, 0.5, 0.5), passed,
+    "Vector3D operator/ not working properly")
+
+  v2_1 += v2_2;
+  v3_1 += v3_2;
+  TEST_CONDITION(v2_1 != 2 * v2_2, passed, "Vector2D operator+= not working properly")
+  TEST_CONDITION(v3_1 != 2 * v3_2, passed, "Vector3D operator+= not working properly")
+  v2_1 -= v2_2;
+  v3_1 -= v3_2;
+  TEST_CONDITION(v2_1 != v2_2, passed, "Vector2D operator-= not working properly")
+  TEST_CONDITION(v3_1 != v3_2, passed, "Vector3D operator-= not working properly")
+  v2_1 *= 2;
+  v3_1 *= 2;
+  TEST_CONDITION(v2_1 != 2 * v2_2, passed, "Vector2D operator*= not working properly")
+  TEST_CONDITION(v3_1 != 2 * v3_2, passed, "Vector3D operator*= not working properly")
+  v2_1 /= 2;
+  v3_1 /= 2;
+  TEST_CONDITION(v2_1 != v2_2, passed, "Vector2D operator/= not working properly")
+  TEST_CONDITION(v3_1 != v3_2, passed, "Vector3D operator/= not working properly")
+
+  v2_2 = flux::Vector2D(3.0, 4.0);
+  v3_2 = flux::Vector3D(1.0, 2.0, 2.0);
+  TEST_CONDITION(flux::magnitude(v2_2) != 5.0, passed,
+    "Vector2D magnitude not working properly")
+  TEST_CONDITION(flux::magnitude(v3_2) != 3.0, passed,
+    "Vector3D magnitude not working properly")
+  TEST_CONDITION(flux::dot(v2_1, v2_2) != 7.0, passed,
+    "Vector2D dot product not working properly")
+  TEST_CONDITION(flux::dot(v3_1, v3_2) != 5.0, passed,
+    "Vector3D dot product not working properly")
+  TEST_CONDITION(flux::cross(v3_1, v3_2) != flux::Vector3D(0.0, -1.0, 1.0), passed,
+    "Vector3D cross product not working properly")
+
+  if (passed)
+    printf("LinkedList passed all tests!\n");
+
   return passed;
 }

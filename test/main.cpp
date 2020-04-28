@@ -2,7 +2,7 @@
 #include "../core/flux_core.h"
 
 int main() {
-  if (!runCoreTests())
+  if (!runDataStructuresTests() || !runCoreTests())
     exit(EXIT_FAILURE);
 
   flux::FluxCore flux_core;

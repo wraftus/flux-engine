@@ -41,5 +41,8 @@
     <ClInclude Include="test\core_tests.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="data_structres\vectors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
