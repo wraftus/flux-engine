@@ -20,6 +20,7 @@
   <ItemGroup>
     <ClInclude Include="core\flux_core.h" />
     <ClInclude Include="core\memory_manager.h" />
+    <ClInclude Include="data_structres\component_array.h" />
     <ClInclude Include="data_structres\vectors.h" />
     <ClInclude Include="test\core_tests.h" />
   </ItemGroup>

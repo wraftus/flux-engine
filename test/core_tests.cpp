@@ -1,28 +1,23 @@
 #include "core_tests.h"
 
-bool runCoreTests() {
+bool runTests() {
   bool passed = true;
   printf("Running core tests ...\n");
-
-#if TEST_MEMORY_MANAGER
-  passed &= testMemoryManager();
-#endif
-
-  if (passed)
-    printf("Passed all core tests!\n");
-  return passed;
-}
-
-bool runDataStructuresTests() {
-  bool passed = true;
-  printf("Running Data Structure Tests ... \n");
 
 #if TEST_VECTORS
   passed &= testVectors();
 #endif TEST_VECTORS
 
+#if TEST_MEMORY_MANAGER
+  passed &= testMemoryManager();
+#endif
+
+#if TEST_COMPONENT_ARRAY
+  passed &= testComponentArray();
+#endif
+
   if (passed)
-    printf("Passed all Data Structure Tests!\n");
+    printf("Passed all core tests!\n");
   return passed;
 }
 
@@ -183,7 +178,46 @@ bool testVectors() {
     "Vector3D cross product not working properly")
 
   if (passed)
-    printf("LinkedList passed all tests!\n");
+    printf("Vectors passed all tests!\n");
 
+  return passed;
+}
+
+bool testComponentArray() {
+  bool passed = true;
+  printf("Testing ComponentArray ...\n");
+
+  // test array setup
+  flux::MemoryManager memory_manager(sizeof(float) * 3);
+  flux::ComponentArray<float> arr;
+  TEST_CONDITION(arr.claimMemory(&memory_manager, 4), passed,
+                 "claimMemory claimed more than it should be able to\n");
+  TEST_CONDITION(!arr.claimMemory(&memory_manager, 3), passed, "claimMemory failed\n");
+  TEST_CONDITION(arr.claimMemory(&memory_manager, 1), passed,
+                 "claimMemory should only be able to be called once\n");
+  TEST_CONDITION(arr.size() != 0, passed, "size was incorrect for empty array\n")
+
+  // filling array
+  TEST_CONDITION(!arr.emplace(2.0f), passed, "failed to emplace first element\n")
+  TEST_CONDITION(!arr.emplace(3.0f), passed, "failed to emplace second element\n")
+  TEST_CONDITION(!arr.insert(0, 1.0f), passed, "failed to insert element\n")
+  TEST_CONDITION(arr.emplace(0.0f), passed, "emplaced an element in full array\n")
+  TEST_CONDITION(arr.size() != 3, passed, "size was incorrect for full array\n")
+
+  // check contents of array
+  TEST_CONDITION(arr.buffer_[0] != 1.0, passed, "first index of array not correct\n")
+  TEST_CONDITION(arr.buffer_[1] != 2.0, passed, "second index of array not correct\n")
+  TEST_CONDITION(arr.buffer_[2] != 3.0, passed, "thrid index of array not correct\n")
+
+  // remove array elements
+  TEST_CONDITION(!arr.remove(1), passed, "failed to remove middle element\n")
+  TEST_CONDITION(arr.buffer_[1] != 3.0, passed, "wrong second element after remove\n")
+  TEST_CONDITION(!arr.remove(0), passed, "failed to remove first element\n")
+  TEST_CONDITION(arr.buffer_[0] != 3.0, passed, "wrong first element after remove\n")
+  TEST_CONDITION(!arr.remove(0), passed, "failed to remove final element\n")
+  TEST_CONDITION(arr.remove(0), passed, "removed element from empty list\n")
+
+  if (passed)
+    printf("ComponentArray passed all tests!\n");
   return passed;
 }

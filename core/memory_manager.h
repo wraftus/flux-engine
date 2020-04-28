@@ -11,6 +11,7 @@ typedef void *flux_data_ptr;
 
 class MemoryManager {
 public:
+  MemoryManager() = delete;
   MemoryManager(const size_t alloc_size);
   ~MemoryManager();
 

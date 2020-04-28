@@ -44,5 +44,8 @@
     <ClInclude Include="data_structres\vectors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="data_structres\component_array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
