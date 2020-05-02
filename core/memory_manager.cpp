@@ -4,26 +4,33 @@
 
 namespace flux {
 
-MemoryManager::MemoryManager(size_t alloc_size) : ALLOC_SIZE_(alloc_size) {
-  // make sure alloc_size > 0
-  if (alloc_size == 0)
-    throw new std::logic_error("Failed to construct memory manager");
-
+constexpr size_t MAX_SEGMENTS = 100;
+MemoryManager::MemoryManager() {
   // allocate memory asked for, and reserve space for the max num of mem nodes
+  ALLOC_SIZE_ = 0;
   claimed_ = 0;
-  start_ptr_ = malloc(ALLOC_SIZE_);
-  segments_.reserve(100); // TODO(wraftus) remove this voodoo number
+  start_ptr_ = nullptr;
+  segments_.reserve(MAX_SEGMENTS);
   cur_id_ = 1;
 }
 
 MemoryManager::~MemoryManager() {
   // free the memory we allcoated
-  free(start_ptr_);
+  if (start_ptr_)
+    free(start_ptr_);
+}
+
+bool MemoryManager::allocMemory(const size_t alloc_size) {
+  if (start_ptr_ || alloc_size == 0)
+    return false;
+  start_ptr_ = malloc(alloc_size);
+  ALLOC_SIZE_ = alloc_size;
+  return true;
 }
 
 flux_data_ptr MemoryManager::claimSection(size_t size, flux_id &id) {
   // return false is we cannot claim any more memory
-  if (size == 0 || claimed_ + size > ALLOC_SIZE_)
+  if (size == 0 || claimed_ + size > ALLOC_SIZE_ || segments_.size() == MAX_SEGMENTS)
     return nullptr;
 
   // see if we can insert this data in a gap

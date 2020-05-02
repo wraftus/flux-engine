@@ -7,7 +7,7 @@
 
 namespace flux {
 
-// TODO(wraftus) should this class be in the same memory section as the array itself?
+// TODO(wraftus) make the class sit in the same memory location as the data
 template <class T> class ComponentArray {
 public:
   T *buffer_;
@@ -20,9 +20,11 @@ public:
     buffer_id_ = 0;
   }
   ~ComponentArray() {
-    memory_manager_->freeSection(buffer_id_);
+    if (buffer_)
+      memory_manager_->freeSection(buffer_id_);
   }
 
+  // TODO(wraftus) make sure that the array is aligned on a cahce line
   inline bool claimMemory(MemoryManager *memory_manager, size_t max_components) {
     // should only claim memory once, and shouldn't create an empty array
     if (buffer_ || max_components == 0)

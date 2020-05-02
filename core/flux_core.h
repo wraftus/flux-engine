@@ -1,6 +1,8 @@
 #ifndef FLUX_CORE_H
 #define FLUX_CORE_H
 
+#include "collision_manager.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -16,6 +18,8 @@ public:
 private:
   int window_width_, window_height_;
   GLFWwindow *glfw_window_;
+
+  CollisionManager *collision_manager_;
 
   // TODO(wraftus) this should also change window_width_ and _height_
   static void framebufferSizeCallback(GLFWwindow* window, int width,

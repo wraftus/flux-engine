@@ -32,13 +32,18 @@ bool testMemoryManager() {
   flux::flux_id id1;
   flux::flux_id id2;
   flux::flux_id id3;
+  
+  flux::MemoryManager manager;
 
   // test constructor and basic get functions
-  try {
-    flux::MemoryManager manager(0);
-    TEST_CONDITION(true, passed, "Passing in zero to constructor should fail\n")
-  } catch (...) {}
-  flux::MemoryManager manager(sizeof(float)*3);
+  TEST_CONDITION(manager.allocMemory(0), passed,
+                 "should not be able to allocate 0 memory")
+  TEST_CONDITION(manager.claimSection(1, id1), passed,
+                 "should not be able to claim a section without allocating")
+  TEST_CONDITION(!manager.allocMemory(sizeof(float) * 3), passed,
+                 "failed to allocate memory")
+  TEST_CONDITION(manager.allocMemory(sizeof(float) * 3), passed,
+                 "should not be able to reallocate memory")
   TEST_CONDITION(manager.getMaxSize() != (sizeof(float) * 3), passed,
                  "MemoryManager returned incorrect value for getMaxSize\n")
   TEST_CONDITION(manager.getAmountClaimed() != 0, passed,
@@ -166,15 +171,15 @@ bool testVectors() {
 
   v2_2 = flux::Vector2D(3.0, 4.0);
   v3_2 = flux::Vector3D(1.0, 2.0, 2.0);
-  TEST_CONDITION(flux::magnitude(v2_2) != 5.0, passed,
+  TEST_CONDITION(v2_2.magnitude() != 5.0, passed,
     "Vector2D magnitude not working properly")
-  TEST_CONDITION(flux::magnitude(v3_2) != 3.0, passed,
+  TEST_CONDITION(v3_2.magnitude() != 3.0, passed,
     "Vector3D magnitude not working properly")
-  TEST_CONDITION(flux::dot(v2_1, v2_2) != 7.0, passed,
+  TEST_CONDITION(flux::vector::dot(v2_1, v2_2) != 7.0, passed,
     "Vector2D dot product not working properly")
-  TEST_CONDITION(flux::dot(v3_1, v3_2) != 5.0, passed,
+  TEST_CONDITION(flux::vector::dot(v3_1, v3_2) != 5.0, passed,
     "Vector3D dot product not working properly")
-  TEST_CONDITION(flux::cross(v3_1, v3_2) != flux::Vector3D(0.0, -1.0, 1.0), passed,
+  TEST_CONDITION(flux::vector::cross(v3_1, v3_2) != flux::Vector3D(0.0, -1.0, 1.0), passed,
     "Vector3D cross product not working properly")
 
   if (passed)
@@ -188,7 +193,8 @@ bool testComponentArray() {
   printf("Testing ComponentArray ...\n");
 
   // test array setup
-  flux::MemoryManager memory_manager(sizeof(float) * 3);
+  flux::MemoryManager memory_manager;
+  memory_manager.allocMemory(sizeof(float) * 3);
   flux::ComponentArray<float> arr;
   TEST_CONDITION(arr.claimMemory(&memory_manager, 4), passed,
                  "claimMemory claimed more than it should be able to\n");

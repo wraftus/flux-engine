@@ -11,11 +11,12 @@ typedef void *flux_data_ptr;
 
 class MemoryManager {
 public:
-  MemoryManager() = delete;
-  MemoryManager(const size_t alloc_size);
+  MemoryManager();
   ~MemoryManager();
 
-  // TODO(wraftus) should this return a smart pointer?
+  
+  bool allocMemory(const size_t alloc_size);
+
   flux_data_ptr claimSection(size_t size, flux_id &id);
   bool freeSection(flux_id id);
   flux_data_ptr getSection(flux_id id);
@@ -26,7 +27,7 @@ public:
   inline size_t getMaxSize() { return ALLOC_SIZE_; }
 
 protected:
-  const size_t ALLOC_SIZE_;
+  size_t ALLOC_SIZE_;
   size_t claimed_;
   flux_data_ptr start_ptr_;
   flux_id cur_id_;

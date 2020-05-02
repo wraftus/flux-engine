@@ -1,4 +1,5 @@
 #include "flux_core.h"
+#include "collision_manager.h"
 
 #include <stdexcept>
 
@@ -31,6 +32,10 @@ FluxCore::FluxCore() {
   glViewport(0, 0, window_width_, window_height_);
   glfwSetFramebufferSizeCallback(glfw_window_, framebufferSizeCallback);
   //glfwSwapInterval(true);
+  
+  collision_manager_ = new CollisionManager(2);
+  collision_manager_->attachRectangle(transform_t{}, Vector2D(0, 0), 0.5, 0.5);
+  collision_manager_->attachRectangle(transform_t{}, Vector2D(0.25, 0.25), 0.5, 0.5);
 }
 
 FluxCore::~FluxCore() {
@@ -41,7 +46,9 @@ FluxCore::~FluxCore() {
 void FluxCore::run() {
   while (!glfwWindowShouldClose(glfw_window_)) {
     // clear screen and swap buffers
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    collision_manager_->drawBoundaries();
     glfwSwapBuffers(glfw_window_);
     glfwPollEvents();
   }
