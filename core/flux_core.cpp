@@ -34,8 +34,9 @@ FluxCore::FluxCore() {
   //glfwSwapInterval(true);
   
   collision_manager_ = new CollisionManager(2);
-  collision_manager_->attachRectangle(transform_t{}, Vector2D(0, 0), 0.5, 0.5);
-  collision_manager_->attachRectangle(transform_t{}, Vector2D(0.25, 0.25), 0.5, 0.5);
+  collision_manager_->attachRectangle(1, transform_t{}, Vector2D(0, 0), 0.5, 0.5);
+  collision_manager_->attachRectangle(2, transform_t{}, Vector2D(0.25, 0.25), 0.5, 0.5);
+  collision_manager_->checkCollisions();
 }
 
 FluxCore::~FluxCore() {

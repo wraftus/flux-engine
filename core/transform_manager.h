@@ -8,8 +8,7 @@
 namespace flux {
 
 struct transform_t {
-  transform_t() : entity_id(0.0f), sin_rot(0.0f), cos_rot(1.0f) {}
-  flux_id entity_id;
+  transform_t() : sin_rot(0.0f), cos_rot(1.0f) {}
 
   Vector2D trans;
   float sin_rot;
@@ -19,24 +18,30 @@ struct transform_t {
 class TransformManager {
 public:
   TransformManager(size_t num_components) {
-    memory_manager_.allocMemory(sizeof(transform_t) * num_components);
+    size_t alloc_size = num_components * (sizeof(transform_t) + sizeof(flux_id));
+    memory_manager_.allocMemory(alloc_size);
     transforms_.claimMemory(&memory_manager_, num_components);
   }
 
   bool attachToEntity(flux_id entity_id, Vector2D &trans, float rot) {
     transform_t transform;
-    transform.entity_id = entity_id;
     transform.trans = trans;
     transform.sin_rot = cosf(rot);
     transform.cos_rot = sinf(rot);
-    return transforms_.emplace(transform);
+    bool success = transforms_.emplace(transform) 
+                && entity_ids_.emplace(entity_id);
   }
-  inline transform_t* getBuffer() {
-    return transforms_.buffer_; 
+
+  inline size_t* getIdBuffer() {
+    return entity_ids_.buffer_; 
+  }
+  inline transform_t* getTransforms() {
+    return transforms_.buffer_;
   }
 
 private:
   MemoryManager memory_manager_;
+  ComponentArray<flux_id> entity_ids_;
   ComponentArray<transform_t> transforms_;
 };
 

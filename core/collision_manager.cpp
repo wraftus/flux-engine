@@ -87,8 +87,8 @@ CollisionManager::CollisionManager(size_t num_rectangles) {
   delete[] vert_idxs;
 }
 
-bool CollisionManager::attachRectangle(transform_t entity_trans, Vector2D from_entity,
-                                       float height, float width) {
+bool CollisionManager::attachRectangle(flux_id entity_id, transform_t entity_trans,
+                                       Vector2D from_entity, float height, float width) {
   collison_rectangle_t rect_bounds;
   rect_bounds.trans = entity_trans.trans;
   rect_bounds.sin_rot = entity_trans.sin_rot;
@@ -97,25 +97,24 @@ bool CollisionManager::attachRectangle(transform_t entity_trans, Vector2D from_e
   rect_bounds.height = height;
   rect_bounds.width = height;
   bool success = rect_bounds_.emplace(rect_bounds) &&
-                 rect_bounds_ids_.emplace(entity_trans.entity_id);
+                 rect_bounds_ids_.emplace(entity_id);
   return success;
 }
 
-// TODO(wraftus) trans_buffer should be a map instead
 // TODO (wraftus) should we check if any rectangles go without udpating translation,
 // or should we only update those that need updating?
-void CollisionManager::udpateTranslations(transform_t *trans_buffer,
+void CollisionManager::udpateTranslations(flux_id* trans_id_buff, transform_t *trans_buff,
                                           size_t trans_size) {
   // update entities transform data for rectangles
   size_t rect_size = rect_bounds_.size();
-  flux_id *id_buffer = rect_bounds_ids_.buffer_;
-  collison_rectangle_t *rect_buffer = rect_bounds_.buffer_;
+  flux_id *bound_id_buff = rect_bounds_ids_.buffer_;
+  collison_rectangle_t *bound_buff = rect_bounds_.buffer_;
   for (size_t trans_idx = 0; trans_idx < trans_size; trans_idx++) {
     for (size_t rect_idx = 0; rect_idx < rect_size; rect_idx++) {
-      if (id_buffer[rect_idx] == trans_buffer[trans_idx].entity_id) {
-        rect_buffer[rect_idx].trans = trans_buffer[trans_idx].trans;
-        rect_buffer[rect_idx].sin_rot = trans_buffer[trans_idx].sin_rot;
-        rect_buffer[rect_idx].cos_rot = trans_buffer[trans_idx].cos_rot;
+      if (bound_id_buff[rect_idx] == trans_id_buff[trans_idx]) {
+        bound_buff[rect_idx].trans = trans_buff[trans_idx].trans;
+        bound_buff[rect_idx].sin_rot = trans_buff[trans_idx].sin_rot;
+        bound_buff[rect_idx].cos_rot = trans_buff[trans_idx].cos_rot;
         break;
       }
     }
@@ -129,20 +128,58 @@ void CollisionManager::checkCollisions() {
   collison_rectangle_t *rect_buffer = rect_bounds_.buffer_;
 
   // iterate through all rectangle bounds and check for collisions (using SAT)
-  for (size_t outer_idx = 0; outer_idx < rect_size; outer_idx++) {
-    // preform transform on outer rectangle and get projection surfaces
+  for (size_t outer_idx = 0; outer_idx < rect_size - 1; outer_idx++) {
+    // preform transform on outer rectangle, get projection vector and range
     rectangle_t outer_rect(rect_buffer[outer_idx]);
+    Vector2D axis1(-(outer_rect.v1.y - outer_rect.v2.y), // perp to "top" face
+                   outer_rect.v1.x - outer_rect.v2.x);
+    Vector2D axis2(-(outer_rect.v4.y - outer_rect.v1.y), // perp to "right" face
+                   outer_rect.v4.x - outer_rect.v1.x);
+
+    float outer_min1, outer_max1, outer_min2, outer_max2;
+    getProjectionBounds(outer_min1, outer_max1, axis1, outer_rect);
+    getProjectionBounds(outer_min2, outer_max2, axis2, outer_rect);
+    printf("rect1: axis1 %f %f, axis2 %f %f\n", outer_min1, outer_max1, outer_min2,
+           outer_max2);
 
     // iterate through rectangle bounds, making sure we don't double check collisions
-    for (size_t inner_idx = outer_idx + 1; inner_idx < rect_size; rect_size++) {
+    for (size_t inner_idx = outer_idx + 1; inner_idx < rect_size; inner_idx++) {
       // don't compare collision boxes on same entity
       // TODO(wraftus) probably don't need to do this check everytime
       if (rect_id_buffer[outer_idx] != rect_id_buffer[inner_idx]) {
       
-        // preform transform on inner rectangle and get projection surfaces
-        rectangle_t inner_rect(rect_buffer[outer_idx]);
+        // preform transform on inner rectangle and get projection ranges
+        rectangle_t inner_rect(rect_buffer[inner_idx]);
+        Vector2D axis3(-(outer_rect.v1.y - outer_rect.v2.y), // perp to "top" face
+                       outer_rect.v1.x - outer_rect.v2.x);
+        Vector2D axis4(-(outer_rect.v1.y - outer_rect.v4.y), // perp to "right" face
+                       outer_rect.v1.x - outer_rect.v4.x);
 
-        // check if rectangles are colliding
+        // if any projections don't overlap, they aren't colliding
+        float inner_min, inner_max;
+        getProjectionBounds(inner_min, inner_max, axis1, inner_rect);
+        printf("rect2: axis1 %f %f\n", inner_min, inner_max);
+        if (inner_max < outer_min1 || outer_max1 < inner_min)
+          continue;
+
+        getProjectionBounds(inner_min, inner_max, axis2, inner_rect);
+        printf("rect2: axis2 %f %f\n", inner_min, inner_max);
+        if (inner_max < outer_min2 || outer_max2 < inner_min)
+          continue;
+
+        getProjectionBounds(outer_min1, outer_max1, axis3, outer_rect);
+        getProjectionBounds(inner_min, inner_max, axis3, inner_rect);
+        if (inner_max < outer_min1 || outer_max1 < inner_min)
+          continue;
+
+        getProjectionBounds(outer_min2, outer_max2, axis4, outer_rect);
+        getProjectionBounds(inner_min, inner_max, axis4, inner_rect);
+        if (inner_max < outer_min2 || outer_max2 < inner_min)
+          continue;
+
+        // projections colliding on all four axes
+        printf("%d is colliding with %d\n", rect_id_buffer[outer_idx],
+               rect_id_buffer[inner_idx]);
 
       }
     }
